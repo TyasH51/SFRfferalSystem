@@ -1,0 +1,224 @@
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Calendar, Phone, Mail, Home, MapPin } from 'lucide-react';
+
+const CarpetLeadSystem = () => {
+  const [leads, setLeads] = useState([]);
+  const [currentLead, setCurrentLead] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    squareFootage: '',
+    preferredDate: '',
+    notes: '',
+    status: 'new'
+  });
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentLead(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newLead = {
+      ...currentLead,
+      id: Date.now(),
+      submissionDate: new Date().toLocaleDateString()
+    };
+    setLeads(prev => [...prev, newLead]);
+    setCurrentLead({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      squareFootage: '',
+      preferredDate: '',
+      notes: '',
+      status: 'new'
+    });
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
+
+  const updateLeadStatus = (id, newStatus) => {
+    setLeads(prev => prev.map(lead => 
+      lead.id === id ? { ...lead, status: newStatus } : lead
+    ));
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-4 space-y-6">
+      {/* Lead Submission Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Submit New Carpet Cleaning Lead</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  name="name"
+                  value={currentLead.name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Full Name"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    name="email"
+                    type="email"
+                    value={currentLead.email}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-8"
+                    placeholder="email@example.com"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Phone</label>
+                <div className="relative">
+                  <Phone className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    name="phone"
+                    value={currentLead.phone}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-8"
+                    placeholder="(123) 456-7890"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Address</label>
+                <div className="relative">
+                  <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    name="address"
+                    value={currentLead.address}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-8"
+                    placeholder="Street Address"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Square Footage</label>
+                <div className="relative">
+                  <Home className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    name="squareFootage"
+                    type="number"
+                    value={currentLead.squareFootage}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-8"
+                    placeholder="Total sq ft"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Preferred Date</label>
+                <div className="relative">
+                  <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    name="preferredDate"
+                    type="date"
+                    value={currentLead.preferredDate}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Additional Notes</label>
+              <textarea
+                name="notes"
+                value={currentLead.notes}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded-md min-h-24"
+                placeholder="Any special requirements or notes..."
+              />
+            </div>
+            <Button type="submit" className="w-full">Submit Lead</Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Success Message */}
+      {showSuccess && (
+        <Alert className="bg-green-100 border-green-500">
+          <AlertDescription className="text-green-700">
+            Lead successfully submitted!
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Leads List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Leads</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {leads.map(lead => (
+              <div key={lead.id} className="border rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-medium">{lead.name}</h3>
+                    <p className="text-sm text-gray-500">{lead.email} | {lead.phone}</p>
+                    <p className="text-sm">{lead.address}</p>
+                    <p className="text-sm">Square Footage: {lead.squareFootage} sq ft</p>
+                    <p className="text-sm">Preferred Date: {lead.preferredDate}</p>
+                  </div>
+                  <select
+                    value={lead.status}
+                    onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                    className="border rounded-md p-1 text-sm"
+                  >
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </div>
+                {lead.notes && (
+                  <p className="text-sm bg-gray-50 p-2 rounded">
+                    Notes: {lead.notes}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">
+                  Submitted: {lead.submissionDate}
+                </p>
+              </div>
+            ))}
+            {leads.length === 0 && (
+              <p className="text-center text-gray-500">No leads submitted yet</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default CarpetLeadSystem;
